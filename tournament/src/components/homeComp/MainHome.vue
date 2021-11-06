@@ -1,5 +1,10 @@
 <template>
   <main>
+    <ModalWindow
+      @closeModal="closeModal"
+      :dialog="dialog"
+      @createTeam="createTeam"
+    />
     <div class="container">
       <div class="mainTopSide">
         <div class="mainLeftSide">
@@ -175,34 +180,8 @@
                 <div class="line"></div>
                 <span>TEAMS</span>
               </div>
-              <v-dialog
-                transition="dialog-bottom-transition"
-                max-width="600"
-                v-model="dialog"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn class="button" v-bind="attrs" v-on="on" :ripple="false"
-                    >CREATE TEAM</v-btn
-                  >
-                </template>
-                <template>
-                  <v-card>
-                    <div class="modalWindow">
-                      <img src="../../assets/main/backgroundModal.png" />
-                      <span>ADD NEW TEAM</span>
-                      <v-text-field
-                        :dark="true"
-                        label="Team name"
-                        v-model="name"
-                        height="40px"
-                      ></v-text-field>
-                      <button @click="addNewTeam()">ADD TEAM</button>
-                    </div>
-                  </v-card>
-                </template>
-              </v-dialog>
+              <button @click="dialog = true">CREATE TEAM</button>
             </div>
-            <!-- <div class="team" v-for="item"></div> -->
             <div class="team" v-for="item in rednerTeams" :key="item.id">
               <div>
                 <img class="teamLogo" src="../../assets/main/teamLogo1.png" />
@@ -273,25 +252,31 @@
 </template>
 
 <script>
+import ModalWindow from "./ModalWindow.vue";
 export default {
   name: "mainHome",
+  components: {
+    ModalWindow,
+  },
   data() {
     return {
       dialog: false,
-      name: "",
     };
   },
   methods: {
-    addNewTeam() {
+    createTeam(teamName) {
+      this.dialog = false;
       this.$store.commit("addNewTeam", {
         id: this.$store.getters.teamList.length + 1,
         logo: null,
-        name: this.name,
+        name: teamName,
       });
-      this.name = "";
+    },
+    closeModal() {
       this.dialog = false;
     },
   },
+
   computed: {
     rednerTeams() {
       return this.$store.getters.teamList;
@@ -301,26 +286,6 @@ export default {
 </script>
 
 <style lang="scss">
-.modalWindow {
-  padding-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #212832;
-  height: 524px;
-  font-weight: bold;
-  font-size: 17px;
-  color: #ffffff;
-  img {
-    width: 100%;
-  }
-  span {
-    margin-top: 40px;
-  }
-  .v-text-field {
-    width: 90%;
-  }
-}
 main {
   background-image: url("../../assets/main/backgroundMain.png");
   background-repeat: no-repeat;
@@ -566,7 +531,7 @@ main {
                 color: #ffffff;
               }
             }
-            .button {
+            button {
               font-weight: bold;
               font-size: 14px;
               color: #ff4646;
